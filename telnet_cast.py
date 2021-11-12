@@ -121,6 +121,7 @@ class shell(threading.Thread):
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
 server.bind((HOST, PORT));
 server.listen(BACKLOG);
+server.setblocking(False);
 
 while True:
     try:
@@ -129,5 +130,10 @@ while True:
         logger.info('User new [%s] @%s:%d.' % (hex(id(user)), *addr));
         user.start();
     except BlockingIOError:
-        pass;
+        continue;
+    except Exception as err:
+        logger.error(err);
+        logger.debug(traceback.format_exc());
+        logger.critical('Main Loop run into an exception.');
+        break;
 
