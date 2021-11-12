@@ -40,7 +40,6 @@ SHELL = 'python ./still_alive_credit_fortelnet.py';
 
 import socket;
 import subprocess;
-import os;
 import threading;
 import logging;
 import traceback;
@@ -75,20 +74,47 @@ class shell(threading.Thread):
 
     def run(self) -> None:
         logger.info('User [%s] running...' % hex(id(self)));
-        conn = self.conn;
-        pipe = os.popen(self.shell, mode = 'r');
+        _conn = self.conn;
         try:
-            while True:
-                b = pipe.read(1);
-                conn.send(bytes(b, 'ascii'));
-                if not b:
-                    conn.shutdown(socket.SHUT_RDWR);
-                    pipe.close();
-                    break;
+            _proc = subprocess.Popen(
+                self.shell,
+                stdin = subprocess.DEVNULL,
+                stdout = subprocess.PIPE,
+                stderr = subprocess.DEVNULL,
+                shell=True
+            );
+            _pipe = _proc.stdout;
         except Exception as err:
-            print(err);
-            conn.close();
-            pipe.close();
+            _conn.close();
+            _proc = None;
+            _pipe = None;
+            logger.debug(err);
+            logger.debug(traceback.format_exc());
+            logger.critical('Shell start failed.');
+            return;
+        try:
+            _chrs = b'\x00';
+            _conn.send(b'\033[0;33m');
+            while _proc.poll() == None and _chrs != b'':
+                _chrs = _pipe.read(1);
+                _conn.send(_chrs);
+            _conn.shutdown(socket.SHUT_RDWR);
+            _pipe.close();
+            _proc.kill();
+        except BrokenPipeError or ConnectionAbortedError or ConnectionResetError as err:
+            _conn.close();
+            _pipe.close();
+            _proc.kill();
+            logger.info('User %s connection aborted.' % hex(id(self)));
+        except Exception as err:
+            _conn.close();
+            _pipe.close();
+            _proc.kill();
+            logger.error(err);
+            logger.debug(traceback.format_exc());
+            logger.critical('Shell failed.');
+        logger.info('User %s ended.' % hex(id(self)));
+        return;
 
 
 
