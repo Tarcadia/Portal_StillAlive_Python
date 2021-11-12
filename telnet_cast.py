@@ -46,9 +46,15 @@ class shell(threading.Thread):
         pipe = os.popen(self.shell, mode = 'r');
         try:
             while True:
-                conn.send(bytes(pipe.read(1), 'ansi'));
+                b = pipe.read(1);
+                conn.send(bytes(b, 'ascii'));
+                if not b:
+                    conn.shutdown(socket.SHUT_RDWR);
+                    pipe.close();
+                    break;
         except Exception as err:
             print(err);
+            conn.close();
             pipe.close();
 
 
