@@ -73,7 +73,7 @@ def _print(str, newline=True):
     global print_lock
     print_lock.acquire()
     if(newline):
-        print(str)
+        print(str, end = '\r\n')
         cursor_x = 1
         cursor_y = cursor_y + 1
     else:
