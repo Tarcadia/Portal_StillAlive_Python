@@ -3,7 +3,7 @@
 
 LOG_FILE = './telnet_cast.log';
 
-HOST = '127.0.0.1'
+HOST = '127.0.0.1';
 PORT = 23;
 #PORT = 6023;
 
