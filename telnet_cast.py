@@ -50,11 +50,11 @@ class shell(threading.Thread):
         except Exception as err:
             print(err);
             pipe.close();
-            conn.close();
 
 
 
 #host = socket.gethostname();
+#port = 6023;
 host = '127.0.0.1'
 port = 23;
 backlog = 16;
