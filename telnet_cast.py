@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+LOG_FILE = './telnet_cast.log';
+
+HOST = '127.0.0.1'
+PORT = 23;
+#PORT = 6023;
+
+BACKLOG = 16;
+
+SHELL = 'python ./still_alive_credit_fortelnet.py';
+
+
+
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,20 +71,15 @@ class shell(threading.Thread):
 
 
 
-#host = socket.gethostname();
-#port = 6023;
-host = '127.0.0.1'
-port = 23;
-backlog = 16;
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-server.bind((host, port));
-server.listen(backlog);
+server.bind((HOST, PORT));
+server.listen(BACKLOG);
 
 while True:
     try:
         conn, addr = server.accept();
         print(addr);
-        user = shell(shell = 'python ./still_alive_credit_fortelnet.py', conn = conn);
+        user = shell(shell = SHELL, conn = conn);
         user.start();
     except BlockingIOError:
         pass;
